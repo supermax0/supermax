@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Admin | SuperMax</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* ================= RESET ================= */
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:Tajawal,system-ui;
+ background:#050b14;
+ color:#fff;
+ min-height:100vh;
+}
+
+/* ================= VARS ================= */
+:root{
+ --glass:rgba(255,255,255,.12);
+ --blur:blur(26px);
+ --green:#00ff88;
+ --blue:#00ccff;
+ --pink:#ff5ad6;
+ --red:#ff4d4d;
+ --yellow:#ffaa00;
+ --radius:26px;
+}
+
+/* ================= BG ================= */
+body::before{
+ content:"";
+ position:fixed;
+ inset:-25%;
+ background:
+ radial-gradient(circle at 15% 20%,#00ff8870,transparent 40%),
+ radial-gradient(circle at 85% 30%,#00ccff70,transparent 40%),
+ radial-gradient(circle at 50% 85%,#ff5ad650,transparent 40%);
+ filter:blur(160px);
+ z-index:-1;
+}
+
+/* ================= NAV ================= */
+.nav{
+ display:flex;
+ justify-content:center;
+ gap:16px;
+ padding:16px;
+ margin:20px;
+ background:rgba(255,255,255,.08);
+ backdrop-filter:var(--blur);
+ border-radius:20px;
+}
+.nav a{
+ padding:10px 26px;
+ border-radius:30px;
+ text-decoration:none;
+ font-weight:900;
+ background:rgba(255,255,255,.12);
+ color:#fff;
+}
+.nav a.active{
+ background:linear-gradient(135deg,var(--green),var(--blue));
+ color:#000;
+}
+
+/* ================= CONTAINER ================= */
+.container{
+ max-width:1300px;
+ margin:20px auto;
+ padding:34px;
+ background:var(--glass);
+ backdrop-filter:var(--blur);
+ border-radius:var(--radius);
+}
+
+/* ================= STATS ================= */
+.stats{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+ gap:18px;
+ margin-bottom:34px;
+}
+.stat{
+ background:rgba(255,255,255,.12);
+ padding:22px;
+ border-radius:20px;
+ text-align:center;
+}
+.stat h3{
+ font-size:30px;
+ color:var(--green);
+}
+.stat small{opacity:.8}
+
+/* ================= FORM ================= */
+h2{text-align:center;margin-bottom:24px}
+
+form{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+ gap:12px;
+ margin-bottom:36px;
+}
+input,textarea,select{
+ padding:14px;
+ border:none;
+ border-radius:16px;
+ background:rgba(255,255,255,.14);
+ color:#fff;
+ outline:none;
+}
+textarea{resize:none;min-height:80px}
+button.save{
+ grid-column:1/-1;
+ padding:16px;
+ border:none;
+ border-radius:40px;
+ background:linear-gradient(135deg,var(--green),var(--blue));
+ font-weight:900;
+ cursor:pointer;
+ color:#000;
+}
+
+/* ================= LIST ================= */
+.list{
+ display:grid;
+ gap:14px;
+}
+.item{
+ display:grid;
+ grid-template-columns:1fr auto;
+ gap:12px;
+ background:rgba(255,255,255,.1);
+ padding:16px;
+ border-radius:20px;
+ align-items:center;
+ cursor:grab;
+}
+.item:active{cursor:grabbing}
+.item small{opacity:.75}
+
+/* ACTIONS */
+.actions{
+ display:flex;
+ gap:8px;
+}
+.actions button{
+ padding:8px 16px;
+ border:none;
+ border-radius:20px;
+ font-weight:800;
+ cursor:pointer;
+}
+.edit{background:var(--blue);color:#000}
+.hide{background:var(--yellow);color:#000}
+.del{background:var(--red);color:#fff}
+
+/* ================= MOBILE ================= */
+@media(max-width:700px){
+ .item{grid-template-columns:1fr}
+ .actions{justify-content:flex-end}
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div class="nav">
+ <a href="admin.html" class="active">🛠️ المنتجات</a>
+ <a href="admin-orders.html">📦 الطلبات</a>
+</div>
+
+<div class="container">
+
+ <!-- ===== DASHBOARD ===== -->
+ <div class="stats">
+  <div class="stat">
+   <h3 id="statProducts">0</h3>
+   <small>عدد المنتجات</small>
+  </div>
+  <div class="stat">
+   <h3 id="statOrders">0</h3>
+   <small>عدد الطلبات</small>
+  </div>
+  <div class="stat">
+   <h3 id="statSales">0</h3>
+   <small>إجمالي المبيعات</small>
+  </div>
+  <div class="stat">
+   <h3 id="statOut">0</h3>
+   <small>نفد المخزون</small>
+  </div>
+ </div>
+
+ <h2>🛠️ إدارة المنتجات</h2>
+
+ <!-- FORM -->
+ <form id="form">
+  <input placeholder="اسم المنتج" required>
+  <input type="number" placeholder="الحجم (بوصة)" required>
+  <input type="number" placeholder="السعر" required>
+  <input type="number" placeholder="المخزون" required>
+
+  <select required>
+   <option value="">التصنيف</option>
+   <option>شاشات 4K</option>
+   <option>QLED</option>
+   <option>Android</option>
+   <option>اقتصادية</option>
+  </select>
+
+  <textarea placeholder="روابط الصور (كل رابط بسطر)"></textarea>
+  <textarea placeholder="المواصفات"></textarea>
+
+  <select>
+   <option value="true">نشط</option>
+   <option value="false">مخفي</option>
+  </select>
+
+  <input type="hidden" id="editId">
+
+  <button class="save">💾 حفظ المنتج</button>
+ </form>
+
+ <!-- PRODUCTS LIST -->
+ <div class="list" id="list">جاري تحميل المنتجات...</div>
+
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import {
+ collection, addDoc, getDocs,
+ doc, updateDoc, deleteDoc,
+ query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const form=document.getElementById("form");
+const list=document.getElementById("list");
+const editId=document.getElementById("editId");
+
+/* ================= LOAD PRODUCTS ================= */
+async function load(){
+ list.innerHTML="";
+ const q=query(collection(db,"products"),orderBy("order","asc"));
+ const snap=await getDocs(q);
+
+ if(snap.empty){
+  list.innerHTML="<p>لا توجد منتجات</p>";
+ }
+
+ snap.forEach(d=>{
+  const p=d.data();
+  list.innerHTML+=`
+   <div class="item" draggable="true" data-id="${d.id}">
+    <div>
+     <strong>${p.name}</strong><br>
+     <small>
+      ${p.category} | مخزون: ${p.stock}
+      ${p.active===false?" | ❌ مخفي":""}
+     </small>
+    </div>
+    <div class="actions">
+     <button class="edit" onclick="editProduct('${d.id}')">✏️</button>
+     <button class="hide" onclick="toggle('${d.id}',${p.active})">
+      ${p.active===false?"👁️":"🚫"}
+     </button>
+     <button class="del" onclick="del('${d.id}')">🗑️</button>
+    </div>
+   </div>
+  `;
+ });
+ loadStats();
+}
+
+/* ================= ADD / EDIT ================= */
+form.onsubmit=async e=>{
+ e.preventDefault();
+
+ const images=form[5].value.split("\n").map(x=>x.trim()).filter(Boolean);
+
+ const data={
+  name:form[0].value,
+  size:+form[1].value,
+  price:+form[2].value,
+  stock:+form[3].value,
+  category:form[4].value,
+  images,
+  specs:form[6].value,
+  active:form[7].value==="true",
+  updatedAt:new Date().toISOString()
+ };
+
+ if(editId.value){
+  await updateDoc(doc(db,"products",editId.value),data);
+ }else{
+  data.createdAt=new Date().toISOString();
+  data.order=Date.now();
+  await addDoc(collection(db,"products"),data);
+ }
+
+ form.reset();
+ editId.value="";
+ load();
+};
+
+/* ================= EDIT ================= */
+window.editProduct=async id=>{
+ const snap=await getDocs(collection(db,"products"));
+ snap.forEach(d=>{
+  if(d.id===id){
+   const p=d.data();
+   form[0].value=p.name;
+   form[1].value=p.size;
+   form[2].value=p.price;
+   form[3].value=p.stock;
+   form[4].value=p.category;
+   form[5].value=(p.images||[]).join("\n");
+   form[6].value=p.specs;
+   form[7].value=String(p.active);
+   editId.value=id;
+  }
+ });
+};
+
+/* ================= TOGGLE ================= */
+window.toggle=async(id,a)=>{
+ await updateDoc(doc(db,"products",id),{active:!a});
+ load();
+};
+
+/* ================= DELETE ================= */
+window.del=async id=>{
+ if(confirm("حذف المنتج؟")){
+  await deleteDoc(doc(db,"products",id));
+  load();
+ }
+};
+
+/* ================= DRAG & DROP ================= */
+let dragSrc=null;
+
+document.addEventListener("dragstart",e=>{
+ if(e.target.classList.contains("item")){
+  dragSrc=e.target;
+  e.target.style.opacity=.5;
+ }
+});
+
+document.addEventListener("dragend",e=>{
+ if(e.target.classList.contains("item")){
+  e.target.style.opacity=1;
+ }
+});
+
+document.addEventListener("dragover",e=>{
+ if(e.target.classList.contains("item")){
+  e.preventDefault();
+ }
+});
+
+document.addEventListener("drop",async e=>{
+ if(e.target.classList.contains("item")){
+  e.preventDefault();
+  if(dragSrc!==e.target){
+   list.insertBefore(dragSrc,e.target);
+   await saveOrder();
+  }
+ }
+});
+
+async function saveOrder(){
+ const items=[...document.querySelectorAll(".item")];
+ for(let i=0;i<items.length;i++){
+  await updateDoc(
+   doc(db,"products",items[i].dataset.id),
+   {order:i}
+  );
+ }
+}
+
+/* ================= STATS ================= */
+async function loadStats(){
+ const productsSnap=await getDocs(collection(db,"products"));
+ document.getElementById("statProducts").textContent=productsSnap.size;
+
+ let out=0;
+ productsSnap.forEach(d=>{
+  if(d.data().stock<=0) out++;
+ });
+ document.getElementById("statOut").textContent=out;
+
+ const ordersSnap=await getDocs(collection(db,"orders"));
+ document.getElementById("statOrders").textContent=ordersSnap.size;
+
+ let sales=0;
+ ordersSnap.forEach(d=>{
+  sales+=Number(d.data().total||0);
+ });
+ document.getElementById("statSales").textContent=
+  sales.toLocaleString()+" د.ع";
+}
+
+/* INIT */
+load();
+</script>
+
+</body>
+</html>

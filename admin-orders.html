@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Admin | الطلبات</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:Tajawal,system-ui;
+ background:#050b14;
+ color:#fff;
+ min-height:100vh;
+}
+
+/* VARS */
+:root{
+ --glass:rgba(255,255,255,.14);
+ --blur:blur(22px);
+ --green:#00ff88;
+ --blue:#00ccff;
+ --red:#ff4d4d;
+ --yellow:#ffaa00;
+ --radius:22px;
+}
+
+/* BG */
+body::before{
+ content:"";
+ position:fixed;
+ inset:-20%;
+ background:
+ radial-gradient(circle at 20% 20%,#00ff8860,transparent 40%),
+ radial-gradient(circle at 80% 30%,#00ccff60,transparent 40%),
+ radial-gradient(circle at 50% 80%,#ff00cc40,transparent 40%);
+ filter:blur(120px);
+ z-index:-1;
+}
+
+/* NAV */
+.nav{
+ display:flex;
+ justify-content:center;
+ gap:15px;
+ padding:15px;
+ margin:20px;
+ background:rgba(255,255,255,.08);
+ backdrop-filter:var(--blur);
+ border-radius:18px;
+}
+.nav a{
+ padding:10px 24px;
+ border-radius:30px;
+ text-decoration:none;
+ font-weight:800;
+ background:rgba(255,255,255,.12);
+ color:#fff;
+}
+.nav a.active{
+ background:linear-gradient(135deg,var(--green),var(--blue));
+ color:#000;
+}
+
+/* CONTAINER */
+.container{
+ max-width:1200px;
+ margin:20px auto;
+ padding:30px;
+ background:var(--glass);
+ backdrop-filter:var(--blur);
+ border-radius:var(--radius);
+}
+
+h2{
+ text-align:center;
+ margin-bottom:25px;
+}
+
+/* ORDER CARD */
+.order{
+ background:rgba(255,255,255,.1);
+ border-radius:18px;
+ padding:16px;
+ margin-bottom:16px;
+}
+.order strong{font-size:16px}
+.order small{opacity:.75}
+
+/* STATUS */
+.status{
+ font-weight:900;
+}
+.new{color:var(--blue)}
+.done{color:var(--green)}
+.cancel{color:var(--yellow)}
+
+/* ACTIONS */
+.actions{
+ display:flex;
+ flex-wrap:wrap;
+ gap:8px;
+ margin-top:12px;
+}
+button{
+ border:none;
+ border-radius:30px;
+ padding:8px 18px;
+ font-weight:800;
+ cursor:pointer;
+}
+.btn-new{background:var(--blue);color:#000}
+.btn-done{background:var(--green);color:#000}
+.btn-cancel{background:var(--yellow);color:#000}
+.btn-del{background:var(--red);color:#fff}
+.btn-wa{
+ background:rgba(255,255,255,.15);
+ color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div class="nav">
+ <a href="admin.html">🛠️ المنتجات</a>
+ <a href="admin-orders.html" class="active">📦 الطلبات</a>
+</div>
+
+<div class="container">
+ <h2>📦 الطلبات</h2>
+ <div id="orders">جاري تحميل الطلبات...</div>
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import {
+ collection, getDocs,
+ doc, updateDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const box = document.getElementById("orders");
+
+/* تحميل الطلبات */
+async function loadOrders(){
+ box.innerHTML = "";
+ const snap = await getDocs(collection(db,"orders"));
+
+ if(snap.empty){
+  box.innerHTML = "<p>لا توجد طلبات</p>";
+ }
+
+ snap.forEach(d=>{
+  const o = d.data();
+
+  let cls = "new";
+  if(o.status === "تم") cls = "done";
+  if(o.status === "ملغي") cls = "cancel";
+
+  const waMsg = `
+طلب رقم: ${d.id}
+
+👤 الاسم: ${o.name}
+📞 الهاتف: ${o.phone}
+📍 المحافظة: ${o.city}
+🏠 العنوان: ${o.address}
+
+🖥️ المنتجات:
+${o.cart.map(p=>"- "+p.name).join("\n")}
+
+💰 المجموع: ${Number(o.total).toLocaleString()} د.ع
+`;
+
+  box.innerHTML += `
+   <div class="order">
+    <strong>👤 ${o.name}</strong> – ${o.phone}<br>
+    <small>${o.city} - ${o.address}</small><br><br>
+
+    🖥️ <strong>المنتجات:</strong><br>
+    ${o.cart.map(p=>`• ${p.name}`).join("<br>")}<br><br>
+
+    💰 <strong>${Number(o.total).toLocaleString()} د.ع</strong><br>
+    📅 ${o.createdAt || ""}<br><br>
+
+    الحالة:
+    <span class="status ${cls}">${o.status}</span>
+
+    <div class="actions">
+     <button class="btn-new" onclick="setStatus('${d.id}','جديد')">جديد</button>
+     <button class="btn-done" onclick="setStatus('${d.id}','تم')">تم</button>
+     <button class="btn-cancel" onclick="setStatus('${d.id}','ملغي')">ملغي</button>
+     <button class="btn-wa" onclick="openWA(\`${encodeURIComponent(waMsg)}\`)">واتساب</button>
+     <button class="btn-del" onclick="delOrder('${d.id}')">🗑️ حذف</button>
+    </div>
+   </div>
+  `;
+ });
+}
+
+/* تغيير الحالة */
+window.setStatus = async (id,status)=>{
+ await updateDoc(doc(db,"orders",id),{status});
+ loadOrders();
+};
+
+/* حذف الطلب */
+window.delOrder = async id=>{
+ if(confirm("هل أنت متأكد من حذف الطلب؟")){
+  await deleteDoc(doc(db,"orders",id));
+  loadOrders();
+ }
+};
+
+/* واتساب */
+window.openWA = msg=>{
+ window.open("https://wa.me/?text="+msg);
+};
+
+/* تشغيل */
+loadOrders();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>إتمام الطلب</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:Tajawal,system-ui;
+ background:#050b14;
+ color:#fff;
+ min-height:100vh;
+}
+:root{
+ --glass:rgba(255,255,255,.14);
+ --blur:blur(22px);
+ --green:#00ff88;
+ --blue:#00ccff;
+ --red:#ff4d4d;
+ --radius:22px;
+}
+body::before{
+ content:"";
+ position:fixed;
+ inset:-20%;
+ background:
+ radial-gradient(circle at 20% 20%,#00ff8860,transparent 40%),
+ radial-gradient(circle at 80% 30%,#00ccff60,transparent 40%),
+ radial-gradient(circle at 50% 80%,#ff00cc40,transparent 40%);
+ filter:blur(120px);
+ z-index:-1;
+}
+.container{
+ max-width:720px;
+ margin:40px auto;
+ padding:30px;
+ background:var(--glass);
+ backdrop-filter:var(--blur);
+ border-radius:var(--radius);
+}
+h2{text-align:center;margin-bottom:20px}
+
+/* SUMMARY */
+.summary{
+ background:rgba(255,255,255,.1);
+ padding:16px;
+ border-radius:18px;
+ margin-bottom:20px;
+}
+.summary h3{margin-bottom:10px}
+.summary p{margin:6px 0}
+.total{
+ color:var(--green);
+ font-size:22px;
+ font-weight:900;
+ margin-top:10px;
+}
+
+/* FORM */
+form{
+ display:grid;
+ gap:10px;
+}
+input,select{
+ padding:14px;
+ border:none;
+ border-radius:14px;
+ background:rgba(255,255,255,.12);
+ color:#fff;
+ outline:none;
+}
+input::placeholder{color:#ccc}
+button{
+ border:none;
+ border-radius:30px;
+ padding:14px;
+ font-weight:900;
+ cursor:pointer;
+ background:linear-gradient(135deg,var(--green),var(--blue));
+ color:#000;
+}
+
+/* ERROR */
+.error{
+ color:var(--red);
+ font-weight:700;
+ margin-bottom:10px;
+ text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+ <h2>📦 إتمام الطلب</h2>
+
+ <div id="error" class="error"></div>
+
+ <div class="summary" id="summary">
+  جاري تحميل الطلب...
+ </div>
+
+ <form id="orderForm">
+  <input placeholder="الاسم الكامل" required>
+  <input placeholder="رقم الهاتف" required>
+  <select required>
+   <option value="">المحافظة</option>
+   <option>بغداد</option>
+   <option>البصرة</option>
+   <option>نينوى</option>
+   <option>النجف</option>
+   <option>كربلاء</option>
+   <option>أربيل</option>
+  </select>
+  <input placeholder="العنوان الكامل" required>
+  <button>تأكيد الطلب</button>
+ </form>
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import {
+ collection, addDoc,
+ doc, runTransaction
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const cart = JSON.parse(localStorage.getItem("cart")) || [];
+const summary = document.getElementById("summary");
+const errorBox = document.getElementById("error");
+
+if(cart.length === 0){
+ summary.innerHTML = "<p>❌ لا توجد منتجات في السلة</p>";
+ throw "Cart empty";
+}
+
+/* حساب المجموع */
+let total = 0;
+cart.forEach(p => total += Number(p.price));
+
+summary.innerHTML = `
+ <h3>🧾 ملخص الطلب</h3>
+ ${cart.map(p=>`<p>• ${p.name}</p>`).join("")}
+ <div class="total">المجموع: ${total.toLocaleString()} د.ع</div>
+`;
+
+document.getElementById("orderForm").onsubmit = async e=>{
+ e.preventDefault();
+ errorBox.textContent = "";
+
+ const order = {
+  name: e.target[0].value,
+  phone: e.target[1].value,
+  city: e.target[2].value,
+  address: e.target[3].value,
+  cart,
+  total,
+  status: "جديد",
+  createdAt: new Date().toISOString()
+ };
+
+ try{
+  await runTransaction(db, async (transaction)=>{
+
+   for(const item of cart){
+    const ref = doc(db,"products",item.id);
+    const snap = await transaction.get(ref);
+
+    if(!snap.exists()) throw "المنتج غير موجود";
+
+    const data = snap.data();
+
+    if(data.stock <= 0){
+     throw `❌ المنتج (${data.name}) نفد من المخزون`;
+    }
+
+    transaction.update(ref,{
+     stock: data.stock - 1
+    });
+   }
+
+   await addDoc(collection(db,"orders"), order);
+  });
+
+  localStorage.removeItem("cart");
+
+  /* واتساب */
+  const msg = `
+طلب جديد 📦
+
+👤 الاسم: ${order.name}
+📞 الهاتف: ${order.phone}
+📍 المحافظة: ${order.city}
+🏠 العنوان: ${order.address}
+
+🖥️ المنتجات:
+${cart.map(p=>"- "+p.name).join("\n")}
+
+💰 المجموع: ${total.toLocaleString()} د.ع
+`;
+  window.open("https://wa.me/?text="+encodeURIComponent(msg));
+
+  alert("✅ تم استلام طلبك بنجاح");
+  location.href = "index.html";
+
+ }catch(err){
+  errorBox.textContent = err;
+ }
+};
+</script>
+
+</body>
+</html>
