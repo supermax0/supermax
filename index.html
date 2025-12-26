@@ -4,71 +4,73 @@
 <meta charset="UTF-8">
 <title>SuperMax | متجر الشاشات الذكية</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="متجر شاشات ذكية 4K و QLED مع ضمان وتوصيل سريع">
+<meta name="description" content="متجر سوبر ماكس للشاشات الذكية - أفضل شاشات 4K و QLED مع ضمان">
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
 
 <style>
-/* ===== RESET ===== */
+/* ================= RESET ================= */
 *{box-sizing:border-box;margin:0;padding:0}
 body{
- font-family:Tajawal,system-ui;
- background:#050b14;
+ font-family:'Tajawal',system-ui;
+ background:#060a12;
  color:#fff;
  overflow-x:hidden;
 }
 
-/* ===== VARS ===== */
+/* ================= VARS ================= */
 :root{
- --glass:rgba(255,255,255,.14);
- --blur:blur(22px);
+ --glass:rgba(255,255,255,.12);
+ --blur:blur(30px);
  --green:#00ff88;
  --blue:#00ccff;
- --red:#ff4d4d;
+ --gold:#d4af37;
  --radius:28px;
 }
 
-/* ===== BG EFFECT ===== */
+/* ================= BACKGROUND ================= */
 body::before{
  content:"";
  position:fixed;
- inset:-20%;
+ inset:-30%;
  background:
- radial-gradient(circle at 20% 20%,#00ff8860,transparent 40%),
- radial-gradient(circle at 80% 30%,#00ccff60,transparent 40%),
- radial-gradient(circle at 50% 80%,#ff00cc40,transparent 40%);
- filter:blur(140px);
+ radial-gradient(circle at 15% 20%,#00ff8860,transparent 40%),
+ radial-gradient(circle at 85% 30%,#00ccff60,transparent 40%),
+ radial-gradient(circle at 50% 80%,#d4af3740,transparent 40%);
+ filter:blur(180px);
  z-index:-1;
 }
 
-/* ===== HEADER ===== */
+/* ================= HEADER ================= */
 header{
  position:sticky;
  top:0;
  z-index:100;
+ padding:18px 30px;
  display:flex;
  justify-content:space-between;
  align-items:center;
- padding:16px 28px;
  background:rgba(255,255,255,.08);
  backdrop-filter:var(--blur);
 }
 .logo{
- font-size:24px;
+ font-size:26px;
  font-weight:900;
- color:var(--green);
+ background:linear-gradient(135deg,var(--green),var(--blue));
+ -webkit-background-clip:text;
+ -webkit-text-fill-color:transparent;
 }
-header input{
- width:240px;
- padding:12px 18px;
- border:none;
- border-radius:30px;
- background:var(--glass);
+header a{
  color:#fff;
- outline:none;
+ text-decoration:none;
+ font-weight:700;
+ margin-right:18px;
 }
 
-/* ===== HERO ===== */
+/* ================= HERO ================= */
 .hero{
- min-height:85vh;
+ min-height:90vh;
  display:flex;
  align-items:center;
  justify-content:center;
@@ -76,104 +78,85 @@ header input{
  padding:40px 20px;
 }
 .hero h1{
- font-size:clamp(36px,5vw,68px);
- margin-bottom:18px;
+ font-size:clamp(40px,5vw,72px);
+ margin-bottom:20px;
 }
 .hero p{
+ font-size:20px;
  opacity:.85;
- font-size:19px;
- margin-bottom:32px;
+ margin-bottom:36px;
 }
 .hero button{
- padding:18px 46px;
+ padding:18px 50px;
  border:none;
- border-radius:40px;
- background:linear-gradient(135deg,var(--green),var(--blue));
+ border-radius:50px;
  font-weight:900;
+ font-size:16px;
  cursor:pointer;
+ background:linear-gradient(135deg,var(--green),var(--blue));
+ color:#000;
+ transition:.4s;
 }
+.hero button:hover{transform:scale(1.05)}
 
-/* ===== GRID ===== */
+/* ================= PRODUCTS ================= */
 .products{
- padding:50px 30px;
+ padding:70px 40px;
  display:grid;
- grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
- gap:34px;
+ grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+ gap:40px;
 }
 
-/* ===== CARD ===== */
+/* ================= CARD ================= */
 .card{
  position:relative;
- background:linear-gradient(
-  180deg,
-  rgba(255,255,255,.20),
-  rgba(255,255,255,.06)
- );
- backdrop-filter:blur(24px);
  border-radius:var(--radius);
- padding:24px;
- transition:.45s cubic-bezier(.2,.8,.2,1);
- overflow:hidden;
+ padding:2px;
+ background:linear-gradient(135deg,var(--green),var(--blue),var(--gold));
+ transition:.4s;
 }
-.card::after{
- content:"";
- position:absolute;
- inset:0;
- background:linear-gradient(
-  120deg,
-  transparent,
-  rgba(255,255,255,.35),
-  transparent
- );
- opacity:0;
- transition:.6s;
+.card-inner{
+ background:rgba(10,15,25,.95);
+ backdrop-filter:var(--blur);
+ border-radius:calc(var(--radius) - 2px);
+ padding:26px;
+ height:100%;
+ transition:.4s;
 }
-.card:hover::after{opacity:1}
 .card:hover{
- transform:translateY(-16px) scale(1.02);
- box-shadow:
-  0 45px 90px rgba(0,0,0,.7),
-  0 0 50px rgba(0,255,136,.25);
+ transform:translateY(-16px) scale(1.03);
+}
+.card:hover .card-inner{
+ box-shadow:0 40px 90px rgba(0,0,0,.7);
 }
 
 /* IMAGE */
 .card img{
  width:100%;
- height:200px;
+ height:210px;
  object-fit:contain;
- margin-bottom:16px;
- transition:.6s ease;
+ margin-bottom:18px;
+ transition:.5s;
 }
-.card:hover img{
- transform:scale(1.08);
-}
+.card:hover img{transform:scale(1.08)}
 
 /* TEXT */
 .card h3{
- font-size:19px;
+ font-size:20px;
  margin-bottom:6px;
 }
 .card small{
  opacity:.75;
  display:block;
- min-height:34px;
+ min-height:38px;
 }
 
 /* PRICE */
 .price{
- color:var(--green);
- font-size:23px;
+ font-size:24px;
  font-weight:900;
- margin:12px 0 6px;
-}
-
-/* STOCK */
-.stock{
- font-size:14px;
-}
-.stock.out{
- color:var(--red);
- font-weight:800;
+ color:var(--green);
+ margin:14px 0 8px;
 }
 
 /* BUTTON */
@@ -188,7 +171,7 @@ header input{
  text-decoration:none;
  font-weight:900;
  opacity:0;
- transform:translateY(12px);
+ transform:translateY(14px);
  transition:.4s;
 }
 .card:hover a{
@@ -196,47 +179,37 @@ header input{
  transform:translateY(0);
 }
 
-/* ===== SKELETON ===== */
-.skeleton{
- background:rgba(255,255,255,.12);
- border-radius:var(--radius);
- padding:24px;
- animation:pulse 1.4s infinite;
-}
-.skeleton .img{
- height:200px;
- background:rgba(255,255,255,.25);
- border-radius:18px;
- margin-bottom:16px;
-}
-.skeleton .line{
- height:14px;
- background:rgba(255,255,255,.25);
- border-radius:10px;
- margin-bottom:10px;
-}
-.skeleton .line.short{width:60%}
-@keyframes pulse{
- 0%{opacity:.35}
- 50%{opacity:1}
- 100%{opacity:.35}
-}
-
-/* ===== FOOTER ===== */
+/* ================= FOOTER ================= */
 footer{
- text-align:center;
- padding:28px;
- opacity:.6;
+ margin-top:80px;
+ padding:50px 30px;
+ background:rgba(255,255,255,.08);
+ backdrop-filter:var(--blur);
 }
+.footer-grid{
+ max-width:1200px;
+ margin:auto;
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+ gap:30px;
+}
+footer h4{
+ margin-bottom:14px;
+ font-size:18px;
+}
+footer a{
+ color:#fff;
+ text-decoration:none;
+ display:block;
+ margin-bottom:8px;
+ opacity:.85;
+}
+footer a:hover{opacity:1}
 
-/* ===== MOBILE ===== */
+/* ================= MOBILE ================= */
 @media(max-width:768px){
- header{
-  flex-direction:column;
-  gap:12px;
- }
- header input{width:100%}
- .products{padding:30px 20px}
+ header{flex-direction:column;gap:12px}
+ .products{padding:50px 20px}
 }
 </style>
 </head>
@@ -245,38 +218,59 @@ footer{
 
 <header>
  <div class="logo">SuperMax</div>
- <input id="search" placeholder="ابحث عن شاشة...">
+ <nav>
+  <a href="#products">الشاشات</a>
+  <a href="https://wa.me/9647711272744" target="_blank">واتساب</a>
+ </nav>
 </header>
 
 <section class="hero">
  <div>
-  <h1>تجربة مشاهدة مختلفة</h1>
-  <p>شاشات ذكية • 4K • QLED • Android • ضمان سنة</p>
-  <button onclick="scrollToProducts()">استعرض الشاشات</button>
+  <h1>تجربة مشاهدة فاخرة</h1>
+  <p>شاشات ذكية • 4K • QLED • Android • ضمان حقيقي</p>
+  <button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+   استعرض الشاشات
+  </button>
  </div>
 </section>
 
-<main class="products" id="products">
- <!-- Skeleton -->
- <div class="skeleton">
-  <div class="img"></div>
-  <div class="line"></div>
-  <div class="line short"></div>
- </div>
- <div class="skeleton">
-  <div class="img"></div>
-  <div class="line"></div>
-  <div class="line short"></div>
- </div>
- <div class="skeleton">
-  <div class="img"></div>
-  <div class="line"></div>
-  <div class="line short"></div>
- </div>
-</main>
+<section class="products" id="products">
+ جاري تحميل المنتجات...
+</section>
 
 <footer>
- © 2025 SuperMax – جميع الحقوق محفوظة
+ <div class="footer-grid">
+
+  <div>
+   <h4>شركة سوبر ماكس</h4>
+   <p style="opacity:.85">
+    كرادة خارج مجمع عبدالرسول علي<br>
+    شركة سوبر ماكس
+   </p>
+   <a href="https://maps.apple/p/E-GGZNmdZRsskK" target="_blank">📍 الموقع على الخريطة</a>
+  </div>
+
+  <div>
+   <h4>تواصل معنا</h4>
+   <a href="https://wa.me/9647711272744">📞 07711272744 (واتساب)</a>
+   <a href="https://www.instagram.com/supermax_supermax?igsh=aTRrZGxseHcxemZ4" target="_blank">Instagram</a>
+   <a href="https://www.facebook.com/share/1BgsEwJBwc/?mibextid=wwXIfr" target="_blank">Facebook</a>
+   <a href="https://www.tiktok.com/@supermax130?_r=1&_t=ZS-92YEGmaWac3" target="_blank">TikTok</a>
+  </div>
+
+  <div>
+   <h4>SuperMax</h4>
+   <p style="opacity:.7">
+    متجر متخصص بالشاشات الذكية<br>
+    جودة • ضمان • ثقة
+   </p>
+  </div>
+
+ </div>
+
+ <p style="text-align:center;margin-top:30px;opacity:.6">
+  © 2025 SuperMax – جميع الحقوق محفوظة
+ </p>
 </footer>
 
 <script type="module">
@@ -285,50 +279,29 @@ import { collection, getDocs }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const box = document.getElementById("products");
-const search = document.getElementById("search");
-let products = [];
 
 async function load(){
  const snap = await getDocs(collection(db,"products"));
- products=[];
+ let html="";
+
  snap.forEach(d=>{
   const p=d.data();
-  if(p.active!==false){
-   products.push({id:d.id,...p});
-  }
- });
- render(products);
-}
+  if(p.active===false) return;
 
-function render(list){
- box.innerHTML="";
- if(!list.length){
-  box.innerHTML="<p>لا توجد منتجات</p>";
-  return;
- }
- list.forEach(p=>{
-  box.innerHTML+=`
+  html+=`
    <div class="card">
-    <img src="${(p.images && p.images[0]) || p.image}" loading="lazy">
-    <h3>${p.name}</h3>
-    <small>${p.specs||""}</small>
-    <div class="price">${Number(p.price).toLocaleString()} د.ع</div>
-    <div class="stock ${p.stock<=0?'out':''}">
-     ${p.stock<=0?'❌ نفد المخزون':'متوفر: '+p.stock}
+    <div class="card-inner">
+     <img src="${(p.images && p.images[0]) || ''}">
+     <h3>${p.name}</h3>
+     <small>${p.specs || ''}</small>
+     <div class="price">${Number(p.price).toLocaleString()} د.ع</div>
+     <a href="product.html?id=${d.id}">عرض التفاصيل</a>
     </div>
-    <a href="product.html?id=${p.id}">عرض التفاصيل</a>
    </div>
   `;
  });
-}
 
-search.oninput=()=>{
- const q=search.value.trim();
- render(products.filter(p=>p.name.includes(q)));
-};
-
-function scrollToProducts(){
- box.scrollIntoView({behavior:"smooth"});
+ box.innerHTML = html || "لا توجد منتجات حالياً";
 }
 
 load();
